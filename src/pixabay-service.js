@@ -32,10 +32,17 @@ export default class PixabayApiService {
           return response.data;
         }
 
+        if (this.page === 1) {
+          Notiflix.Notify.info(
+            `Hooray! We found ${response.data.totalHits} images.`
+          );
+        }
+
         if (Math.ceil(response.data.totalHits/40) === this.page) {
           Notiflix.Notify.info(
             "We're sorry, but you've reached the end of search results."
           );
+          loadMoreBtn.hidden = true;
           return response.data;
         }
         loadMoreBtn.hidden = false;
