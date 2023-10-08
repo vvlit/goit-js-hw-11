@@ -1,4 +1,6 @@
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import PixabayApiService from './pixabay-service';
 
 const refs = {
@@ -48,7 +50,9 @@ function createMarkup(fetchData) {
         downloads,
       }) => {
         return `<div class="photo-card">
+                  <a class="photo-link" href="${largeImageURL}">
                   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+                  </a>
                   <div class="info">
                     <p class="info-item">
                       <b>Likes</b> ${likes}
@@ -69,6 +73,7 @@ function createMarkup(fetchData) {
     .join('');
 
   refs.gallery.insertAdjacentHTML('beforeend', markup);
+  const gallery = new SimpleLightbox('.gallery .photo-link');
 }
 
 function onLoadMore() {
