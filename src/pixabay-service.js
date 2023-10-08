@@ -1,6 +1,10 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
 
+const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '39837054-9469d224a9fc48ca296e128bd';
+const loadMoreBtn = document.querySelector('.load-more')
+
 export default class PixabayApiService {
   constructor() {
     this.searchQuery = '';
@@ -8,11 +12,6 @@ export default class PixabayApiService {
   }
 
   async fetchInfo() {
-    const BASE_URL = 'https://pixabay.com/api/';
-    const API_KEY = '39837054-9469d224a9fc48ca296e128bd';
-
-    // const searchQuery = event.currentTarget.elements.searchQuery.value;
-
     const searchParams = new URLSearchParams({
       key: API_KEY,
       q: this.searchQuery,
@@ -26,15 +25,20 @@ export default class PixabayApiService {
     return await axios
       .get(`${BASE_URL}?${searchParams}`)
       .then(response => {
-        // console.log(response.data);
         if (response.data.total === 0) {
           Notiflix.Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.',
-            {
-              position: 'center-top',
-            }
+            'Sorry, there are no images matching your search query. Please try again.'
           );
+          return response.data;
         }
+
+        if (Math.ceil(response.data.totalHits/40) === this.page) {
+          Notiflix.Notify.info(
+            "We're sorry, but you've reached the end of search results."
+          );
+          return response.data;
+        }
+        loadMoreBtn.hidden = false;
         this.incrementPage();
 
         return response.data;

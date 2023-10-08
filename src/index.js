@@ -1,33 +1,43 @@
-
-import PixabayApiService from "./pixabay-service"
+import Notiflix from 'notiflix';
+import PixabayApiService from './pixabay-service';
 
 const refs = {
   form: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
-  loadMoreBtn: document.querySelector('.load-more')
+  loadMoreBtn: document.querySelector('.load-more'),
 };
 const pixabayApiService = new PixabayApiService();
 
 refs.form.addEventListener('submit', onSubmit);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
+refs.loadMoreBtn.hidden = true;
 
 function onSubmit(event) {
   event.preventDefault();
+
   clearGallery();
-  pixabayApiService.query = event.currentTarget.elements.searchQuery.value;
+
+  pixabayApiService.query =
+    event.currentTarget.elements.searchQuery.value.trim();
   pixabayApiService.resetPage();
-  pixabayApiService.fetchInfo()
-    .then(({ hits }) => {
-      createMarkup(hits) }
-    )
-  
-};
+ 
+  refs.loadMoreBtn.hidden = true;
 
+  if (pixabayApiService.query === '') {
+    return Notiflix.Notify.failure(
+      'Please, enter search query.'
+    );
+  }
 
+  pixabayApiService.fetchInfo().then(({ hits }) => {
+    createMarkup(hits);
+    // refs.loadMoreBtn.hidden = false;
+  });
+}
 
 function createMarkup(fetchData) {
-  console.log(fetchData)
-  const markup = fetchData.map(
+  const markup = fetchData
+    .map(
       ({
         webformatURL,
         largeImageURL,
@@ -54,19 +64,19 @@ function createMarkup(fetchData) {
                     </p>
                   </div>
                 </div>`;
-  })
+      }
+    )
     .join('');
-  
+
   refs.gallery.insertAdjacentHTML('beforeend', markup);
 }
 
 function onLoadMore() {
-  pixabayApiService.fetchInfo()
-    .then(({ hits }) => {
-      createMarkup(hits) }
-    )
+  pixabayApiService.fetchInfo().then(({ hits }) => {
+    createMarkup(hits);
+  });
 }
 
 function clearGallery() {
-  refs.gallery.innerHTML = "";
+  refs.gallery.innerHTML = '';
 }
